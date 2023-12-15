@@ -40,7 +40,7 @@ jobs:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
-          --force-coverage-parser go -r coverage.out -t
+          --force-coverage-parser go -r coverage.out
       
       - name: Run gosec
         run: |
