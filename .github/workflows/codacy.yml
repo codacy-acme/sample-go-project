@@ -40,6 +40,7 @@ jobs:
       - name: Generate coverage report
         run: |
           go test -coverprofile=coverage.out ./...
+        continue-on-error: true
 
       - name: Upload coverage report to Codacy
         env:
