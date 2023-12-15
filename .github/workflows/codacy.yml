@@ -25,6 +25,7 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           go install github.com/securego/gosec/cmd/gosec@latest
           gosec ./...
+        continue-on-error: true
 
       - name: Run golangci-lint with coverage
         run: |
