@@ -23,7 +23,7 @@ jobs:
       - name: Run gosec
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          go get -u github.com/securego/gosec/cmd/gosec
+          go install github.com/securego/gosec/cmd/gosec@latest
           gosec ./...
 
       - name: Run golangci-lint with coverage
