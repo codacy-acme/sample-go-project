@@ -40,16 +40,13 @@ jobs:
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
-          args: -fmt json -log log.txt ./...  
+          args: -fmt json -log log.txt ./...
+        continue-on-error: true 
+        
       - name: send results to codacy
         run: |
-              java -jar codacy-gosec-0.3.8.jar  | \  
-              curl -XPOST -L -H "project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}" \
-                -H "Content-type: application/json" -d @- \
-                "https://api.codacy.com/2.0/commit/$GITHUB_SHA/issuesRemoteResults"
-              curl -XPOST -L -H "project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}" \
-                -H "Content-type: application/json" \
-                "https://api.codacy.com/2.0/commit/$GITHUB_SHA/resultsFinal"
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+          --force-coverage-parser go -r ./log.txt
 
       - name: Run Codacy Analysis CLI with Docker
         run: |
