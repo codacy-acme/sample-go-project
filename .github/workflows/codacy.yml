@@ -20,6 +20,10 @@ jobs:
         with:
           go-version: 1.18
 
+      - name: Set-up PATH for Go
+        run: |
+          echo "::add-path::${GOPATH}/bin"
+
       - name: Run gosec
         run: |
           go get -u github.com/securego/gosec/cmd/gosec
