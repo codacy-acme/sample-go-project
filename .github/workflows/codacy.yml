@@ -43,7 +43,9 @@ jobs:
           args: -fmt json -log log.txt ./...
         continue-on-error: true 
         
-      - name: send results to codacy
+      - name: Upload Coverage to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
           --force-coverage-parser go -r ./log.txt
