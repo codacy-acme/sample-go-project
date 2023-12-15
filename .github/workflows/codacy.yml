@@ -20,13 +20,6 @@ jobs:
         with:
           go-version: 1.18
 
-      - name: Run gosec
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          go install github.com/securego/gosec/cmd/gosec@latest
-          gosec ./...
-        continue-on-error: true
-
       - name: Run golangci-lint with coverage
         run: |
           go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
@@ -37,18 +30,24 @@ jobs:
 #          GOPATH: ${{ github.workspace }}
         continue-on-error: true
 
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: -fmt json -log log.txt ./...
-        continue-on-error: true 
-        
-      - name: Upload Coverage to Codacy
+      - name: Generate coverage report
+        run: |
+          go test -coverprofile=coverage.out ./... 
+        continue-on-error: true
+
+      - name: Upload coverage report to Codacy
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
         run: |
           bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
-          --force-coverage-parser go -r log.txt
+          --force-coverage-parser go -r coverage.out -t
+      
+      - name: Run gosec
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go install github.com/securego/gosec/cmd/gosec@latest
+          gosec ./...
+        continue-on-error: true
 
       - name: Run Codacy Analysis CLI with Docker
         run: |
