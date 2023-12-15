@@ -11,7 +11,7 @@ func main() {
 	unusedVariable := "This variable is not used"
 
 	// Common error: Unused import
-	 import "fmt"
+	// import "fmt"
 
 	// Common error: Printf format string without arguments
 	// fmt.Printf("Hello, World!")
