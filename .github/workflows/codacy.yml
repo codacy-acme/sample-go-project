@@ -33,8 +33,8 @@ jobs:
           go test -coverprofile=coverage.out ./...
           golangci-lint run --disable-all --enable=goconst --enable=gocyclo --enable=gofmt --enable=golint --enable=gosimple --enable=unconvert --enable=ineffassign --enable=goimports --enable=misspell --enable=unused --enable=deadcode --enable=errcheck --enable=staticcheck --enable=structcheck --enable=varcheck --enable=ineffassign --enable=interfacer --enable=unparam --enable=lll --enable=dupl --enable=gosec --enable=megacheck --enable=errcheck --tests ./...
           golangci-lint report --sort=linter
-        env:
-          GOPATH: ${{ github.workspace }}
+#        env:
+#          GOPATH: ${{ github.workspace }}
 
       - name: Generate coverage report
         run: |
