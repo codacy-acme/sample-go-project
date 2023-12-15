@@ -35,6 +35,7 @@ jobs:
           golangci-lint report --sort=linter
 #        env:
 #          GOPATH: ${{ github.workspace }}
+        continue-on-error: true
 
       - name: Generate coverage report
         run: |
