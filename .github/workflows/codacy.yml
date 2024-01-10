@@ -20,6 +20,20 @@ jobs:
         with:
           go-version: 1.18
 
+
+      - name: Run Codacy Analysis CLI with Docker
+        run: |
+          export CODACY_CODE=$GITHUB_WORKSPACE
+          docker run \
+            --rm=true \
+            --env CODACY_CODE="$CODACY_CODE" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume "$CODACY_CODE":"$CODACY_CODE" \
+            --volume /tmp:/tmp \
+            codacy/codacy-analysis-cli \
+              analyze --upload --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} --max-allowed-issues 99999 --commit-uuid $GITHUB_SHA          
+
+
       - name: Run golangci-lint with coverage
         run: |
           go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
@@ -48,15 +62,3 @@ jobs:
           go install github.com/securego/gosec/cmd/gosec@latest
           gosec ./...
         continue-on-error: true
-
-      - name: Run Codacy Analysis CLI with Docker
-        run: |
-          export CODACY_CODE=$GITHUB_WORKSPACE
-          docker run \
-            --rm=true \
-            --env CODACY_CODE="$CODACY_CODE" \
-            --volume /var/run/docker.sock:/var/run/docker.sock \
-            --volume "$CODACY_CODE":"$CODACY_CODE" \
-            --volume /tmp:/tmp \
-            codacy/codacy-analysis-cli \
-              analyze --upload --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} --max-allowed-issues 99999 --commit-uuid $GITHUB_SHA
