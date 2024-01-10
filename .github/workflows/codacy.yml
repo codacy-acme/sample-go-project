@@ -1,0 +1,64 @@
+name: Client Side Tools and Coverage
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set-up Go
+        uses: actions/setup-go@v5.0.0
+        with:
+          go-version: 1.18
+
+
+      - name: Run Codacy Analysis CLI with Docker
+        run: |
+          export CODACY_CODE=$GITHUB_WORKSPACE
+          docker run \
+            --rm=true \
+            --env CODACY_CODE="$CODACY_CODE" \
+            --volume /var/run/docker.sock:/var/run/docker.sock \
+            --volume "$CODACY_CODE":"$CODACY_CODE" \
+            --volume /tmp:/tmp \
+            codacy/codacy-analysis-cli \
+              analyze --tool semgrep --upload --project-token ${{ secrets.CODACY_PROJECT_TOKEN }} --max-allowed-issues 99999 --commit-uuid $GITHUB_SHA          
+
+
+      - name: Run golangci-lint with coverage
+        run: |
+          go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+          go test -coverprofile=coverage.out ./...
+          golangci-lint run --disable-all --enable=goconst --enable=gocyclo --enable=gofmt --enable=golint --enable=gosimple --enable=unconvert --enable=ineffassign --enable=goimports --enable=misspell --enable=unused --enable=deadcode --enable=errcheck --enable=staticcheck --enable=structcheck --enable=varcheck --enable=ineffassign --enable=interfacer --enable=unparam --enable=lll --enable=dupl --enable=gosec --enable=megacheck --enable=errcheck --tests ./...
+          golangci-lint report --sort=linter
+#        env:
+#          GOPATH: ${{ github.workspace }}
+        continue-on-error: true
+
+      - name: Generate coverage report
+        run: |
+          go test -coverprofile=coverage.out ./... 
+        continue-on-error: true
+
+      - name: Upload coverage report to Codacy
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report \
+          --force-coverage-parser go -r coverage.out
+      
+      - name: Run gosec
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go install github.com/securego/gosec/cmd/gosec@latest
+          gosec ./...
+        continue-on-error: true
