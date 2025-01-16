@@ -62,3 +62,4 @@ jobs:
           go install github.com/securego/gosec/cmd/gosec@latest
           gosec ./...
         continue-on-error: true
+        
